@@ -37,7 +37,7 @@ export namespace DMMF {
     fields: ModelField[];
     uniqueFields: string[][];
     uniqueIndexes: UniqueIndex[];
-    // documentation?: string;
+    documentation?: string;//123
     primaryKey: PrimaryKey | null;
     // isGenerated?: boolean;
     // additional props:

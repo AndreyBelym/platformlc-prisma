@@ -71,8 +71,17 @@ export function generateCrudResolverClassMethodDeclaration(
                 Object.entries({ _count, _avg, _sum, _min, _max }).filter(([_, v]) => v != null)
               ),
             });`,
-          ]
-        : [
+            ]
+          : ['findMany', 'findFirst','findUnique', 'findFirstOrThrow', 'findUniqueOrThrow'].includes(action.prismaMethod) ?
+          [
+              /* ts */ ` const { _count } = transformInfoIntoPrismaArgs(info);
+      return getPrismaFromContext(ctx).${mapping.collectionName}.${action.prismaMethod}({
+        ...args,
+        ...(_count && transformCountFieldIntoSelectRelationsCount(_count)),
+        ...getIncludesFromInfo(info)
+      });`,
+          ] 
+          : [
             /* ts */ ` const { _count } = transformInfoIntoPrismaArgs(info);
             return getPrismaFromContext(ctx).${mapping.collectionName}.${action.prismaMethod}({
               ...args,
