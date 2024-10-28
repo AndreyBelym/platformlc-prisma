@@ -26,6 +26,8 @@ export default function generateRelationsResolverClassesFromModel(
   { model, relationFields, resolverName }: DMMF.RelationModel,
   generatorOptions: GeneratorOptions,
 ) {
+  const modelMap: Record<string, typeof dmmfDocument.models[number]>  = dmmfDocument.models.reduce((acc, model) => ({ ...acc, [model.typeName]: model }), {});
+
   const rootArgName = camelCase(model.typeName);
   const singleIdField = model.fields.find(field => field.isId);
   const singleUniqueField = model.fields.find(field => field.isUnique);
@@ -78,6 +80,8 @@ export default function generateRelationsResolverClassesFromModel(
     ],
     methods: relationFields.map<OptionalKind<MethodDeclarationStructure>>(
       field => {
+        let unresolvable = modelMap[field.type]?.documentation?.includes('unresolvable');
+
         let whereConditionString: string = "";
         // TODO: refactor to AST
         if (singleFilterField) {
@@ -155,7 +159,9 @@ export default function generateRelationsResolverClassesFromModel(
           ],
           // TODO: refactor to AST
           statements: [
-            /* ts */ ` const { _count } = transformInfoIntoPrismaArgs(info);
+            unresolvable 
+            ?/* ts */  ` return {${field.relationToFields?.join('_')}: ${rootArgName}.${ field.relationFromFields?.join('_') }} as any;`
+            :/* ts */  ` const { _count } = transformInfoIntoPrismaArgs(info);
             return getPrismaFromContext(ctx).${camelCase(
               model.name,
             )}.findUniqueOrThrow({

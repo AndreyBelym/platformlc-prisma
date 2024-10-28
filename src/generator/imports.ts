@@ -56,6 +56,13 @@ export function generateGraphQLScalarTypeImport(sourceFile: SourceFile) {
   });
 }
 
+export function generateGraphQLIncludesImport(sourceFile: SourceFile) {
+  sourceFile.addImportDeclaration({
+      moduleSpecifier: "graphql",
+      namedImports: ["getNamedType", "Kind", "FieldNode", "isObjectType" ],
+  });
+}
+
 export function generateCustomScalarsImport(sourceFile: SourceFile, level = 0) {
   sourceFile.addImportDeclaration({
     moduleSpecifier:
@@ -74,6 +81,7 @@ export function generateHelpersFileImport(sourceFile: SourceFile, level = 0) {
       "transformInfoIntoPrismaArgs",
       "getPrismaFromContext",
       "transformCountFieldIntoSelectRelationsCount",
+      "getIncludesFromInfo"
     ],
   });
 }

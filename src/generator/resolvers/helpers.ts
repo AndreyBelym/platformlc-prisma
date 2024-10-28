@@ -72,6 +72,15 @@ export function generateCrudResolverClassMethodDeclaration(
               ),
             });`,
             ]
+          : ['findMany', 'findFirst','findUnique', 'findFirstOrThrow', 'findUniqueOrThrow'].includes(action.prismaMethod) ?
+          [
+              /* ts */ ` const { _count } = transformInfoIntoPrismaArgs(info);
+      return getPrismaFromContext(ctx).${mapping.collectionName}.${action.prismaMethod}({
+        ...args,
+        ...(_count && transformCountFieldIntoSelectRelationsCount(_count)),
+        ...getIncludesFromInfo(info)
+      });`,
+          ] 
           : [
               /* ts */ ` const { _count } = transformInfoIntoPrismaArgs(info);
             return getPrismaFromContext(ctx).${mapping.collectionName}.${action.prismaMethod}({

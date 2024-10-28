@@ -12,7 +12,7 @@ import { GeneratorOptions } from "../options";
 import { EmitBlockKind } from "../emit-block";
 
 export class DmmfDocument implements DMMF.Document {
-  private models: DMMF.Model[];
+  models: DMMF.Model[];
   datamodel: DMMF.Datamodel;
   schema: DMMF.Schema;
   enums: DMMF.Enum[];

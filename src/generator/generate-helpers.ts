@@ -13,6 +13,35 @@ export function generateHelpersFile(
   generateGraphQLFieldsImport(sourceFile);
 
   sourceFile.addStatements(/* ts */ `
+    export function getIncludesFromInfo(info: GraphQLResolveInfo): any {
+      const fields = info.fieldNodes[0].selectionSet?.selections.filter((item): item is FieldNode => item?.kind === Kind.FIELD) || [];
+
+      const fieldNames = fields.filter(field => !field.arguments?.length).map(({ name: { value }})=> value).filter(name => !name.startsWith('_') );
+      const type = getNamedType(info.returnType);
+
+      let includes: any;
+
+      if (isObjectType(type)) {
+        const typeFields = type.getFields();
+        for (const name of fieldNames) {
+          const field = typeFields[name];
+          const fieldType = getNamedType(field.type);
+
+          if (isObjectType(fieldType)) {
+            if (fieldType.description?.includes('entity') && fieldType.getInterfaces().some(iface => iface.description?.includes('unresolvable'))) {
+              continue;
+            }
+            includes ||= {};
+            includes[name] = true;
+          }
+        }
+      }
+
+      return includes && { include: includes };
+    }
+  `);
+  
+  sourceFile.addStatements(/* ts */ `
     export function transformInfoIntoPrismaArgs(info: GraphQLResolveInfo): Record<string, any> {
       const fields: Record<string, any> = graphqlFields(
         // suppress GraphQLResolveInfo types issue
